@@ -1,0 +1,2248 @@
+{
+  "header_types" : [
+    {
+      "name" : "scalars_0",
+      "id" : 0,
+      "fields" : [
+        ["tmp", 32, false],
+        ["tmp_0", 32, false],
+        ["tmp_1", 64, false],
+        ["tmp_2", 32, false],
+        ["tmp_3", 64, false],
+        ["tmp_4", 32, false],
+        ["tmp_5", 64, false]
+      ]
+    },
+    {
+      "name" : "standard_metadata",
+      "id" : 1,
+      "fields" : [
+        ["ingress_port", 9, false],
+        ["egress_spec", 9, false],
+        ["egress_port", 9, false],
+        ["instance_type", 32, false],
+        ["packet_length", 32, false],
+        ["enq_timestamp", 32, false],
+        ["enq_qdepth", 19, false],
+        ["deq_timedelta", 32, false],
+        ["deq_qdepth", 19, false],
+        ["ingress_global_timestamp", 48, false],
+        ["egress_global_timestamp", 48, false],
+        ["mcast_grp", 16, false],
+        ["egress_rid", 16, false],
+        ["checksum_error", 1, false],
+        ["parser_error", 32, false],
+        ["priority", 3, false],
+        ["_padding", 3, false]
+      ]
+    },
+    {
+      "name" : "ethernet_t",
+      "id" : 2,
+      "fields" : [
+        ["dstAddr", 48, false],
+        ["srcAddr", 48, false],
+        ["etherType", 16, false]
+      ]
+    },
+    {
+      "name" : "ipv4_t",
+      "id" : 3,
+      "fields" : [
+        ["version", 4, false],
+        ["ihl", 4, false],
+        ["diffserv", 8, false],
+        ["totalLen", 16, false],
+        ["identification", 16, false],
+        ["flags", 3, false],
+        ["fragOffset", 13, false],
+        ["ttl", 8, false],
+        ["protocol", 8, false],
+        ["hdrChecksum", 16, false],
+        ["srcAddr", 32, false],
+        ["dstAddr", 32, false]
+      ]
+    },
+    {
+      "name" : "DPSyncTag_t",
+      "id" : 4,
+      "fields" : [
+        ["etherType", 16, false],
+        ["opCode", 4, false],
+        ["reserved", 3, false],
+        ["originalPort", 9, false]
+      ]
+    },
+    {
+      "name" : "TS_Payload_t",
+      "id" : 5,
+      "fields" : [
+        ["TS1", 64, false],
+        ["TS2", 64, false],
+        ["TS3", 64, false],
+        ["TS4", 64, false]
+      ]
+    }
+  ],
+  "headers" : [
+    {
+      "name" : "scalars",
+      "id" : 0,
+      "header_type" : "scalars_0",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "standard_metadata",
+      "id" : 1,
+      "header_type" : "standard_metadata",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "ethernet",
+      "id" : 2,
+      "header_type" : "ethernet_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "ipv4",
+      "id" : 3,
+      "header_type" : "ipv4_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "DPSyncTag",
+      "id" : 4,
+      "header_type" : "DPSyncTag_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "TS",
+      "id" : 5,
+      "header_type" : "TS_Payload_t",
+      "metadata" : false,
+      "pi_omit" : true
+    }
+  ],
+  "header_stacks" : [],
+  "header_union_types" : [],
+  "header_unions" : [],
+  "header_union_stacks" : [],
+  "field_lists" : [],
+  "errors" : [
+    ["NoError", 0],
+    ["PacketTooShort", 1],
+    ["NoMatch", 2],
+    ["StackOutOfBounds", 3],
+    ["HeaderTooShort", 4],
+    ["ParserTimeout", 5],
+    ["ParserInvalidArgument", 6]
+  ],
+  "enums" : [],
+  "parsers" : [
+    {
+      "name" : "parser",
+      "id" : 0,
+      "init_state" : "start",
+      "parse_states" : [
+        {
+          "name" : "start",
+          "id" : 0,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "ethernet"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "hexstr",
+              "value" : "0x9487",
+              "mask" : null,
+              "next_state" : "parse_ipv4"
+            },
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : [
+            {
+              "type" : "field",
+              "value" : ["ethernet", "etherType"]
+            }
+          ]
+        },
+        {
+          "name" : "parse_ipv4",
+          "id" : 1,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "ipv4"
+                }
+              ],
+              "op" : "extract"
+            },
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "DPSyncTag"
+                }
+              ],
+              "op" : "extract"
+            },
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "TS"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "type" : "default",
+              "value" : null,
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : []
+        }
+      ]
+    }
+  ],
+  "parse_vsets" : [],
+  "deparsers" : [
+    {
+      "name" : "deparser",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "timeSync.p4",
+        "line" : 263,
+        "column" : 8,
+        "source_fragment" : "MyDeparser"
+      },
+      "order" : ["ethernet", "ipv4", "DPSyncTag", "TS"],
+      "primitives" : []
+    }
+  ],
+  "meter_arrays" : [],
+  "counter_arrays" : [],
+  "register_arrays" : [
+    {
+      "name" : "MyIngress.TS1",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "timeSync.p4",
+        "line" : 91,
+        "column" : 27,
+        "source_fragment" : "TS1"
+      },
+      "size" : 512,
+      "bitwidth" : 64
+    },
+    {
+      "name" : "MyIngress.TS2",
+      "id" : 1,
+      "source_info" : {
+        "filename" : "timeSync.p4",
+        "line" : 92,
+        "column" : 27,
+        "source_fragment" : "TS2"
+      },
+      "size" : 512,
+      "bitwidth" : 64
+    },
+    {
+      "name" : "MyIngress.TS3",
+      "id" : 2,
+      "source_info" : {
+        "filename" : "timeSync.p4",
+        "line" : 93,
+        "column" : 27,
+        "source_fragment" : "TS3"
+      },
+      "size" : 512,
+      "bitwidth" : 64
+    },
+    {
+      "name" : "MyIngress.TS4",
+      "id" : 3,
+      "source_info" : {
+        "filename" : "timeSync.p4",
+        "line" : 94,
+        "column" : 27,
+        "source_fragment" : "TS4"
+      },
+      "size" : 512,
+      "bitwidth" : 64
+    }
+  ],
+  "calculations" : [
+    {
+      "name" : "calc",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "timeSync.p4",
+        "line" : 241,
+        "column" : 1,
+        "source_fragment" : "update_checksum( ..."
+      },
+      "algo" : "csum16",
+      "input" : [
+        {
+          "type" : "field",
+          "value" : ["ipv4", "version"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "ihl"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "diffserv"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "totalLen"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "identification"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "flags"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "fragOffset"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "ttl"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "protocol"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "srcAddr"]
+        },
+        {
+          "type" : "field",
+          "value" : ["ipv4", "dstAddr"]
+        }
+      ]
+    }
+  ],
+  "learn_lists" : [],
+  "actions" : [
+    {
+      "name" : "MyIngress.do_updateT1",
+      "id" : 0,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "field",
+                    "value" : ["DPSyncTag", "originalPort"]
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffffffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 103,
+            "column" : 18,
+            "source_fragment" : "(bit<32>)originalPort"
+          }
+        },
+        {
+          "op" : "register_write",
+          "parameters" : [
+            {
+              "type" : "register_array",
+              "value" : "MyIngress.TS1"
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp"]
+            },
+            {
+              "type" : "field",
+              "value" : ["TS", "TS1"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 103,
+            "column" : 8,
+            "source_fragment" : "TS1.write((bit<32>)originalPort, (bit<64>) hdr.TS.TS1)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.do_updateT2",
+      "id" : 1,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_0"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "field",
+                    "value" : ["DPSyncTag", "originalPort"]
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffffffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 114,
+            "column" : 18,
+            "source_fragment" : "(bit<32>)originalPort"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_1"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "field",
+                    "value" : ["standard_metadata", "ingress_global_timestamp"]
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffffffffffffffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 114,
+            "column" : 41,
+            "source_fragment" : "(bit<64>)standard_metadata.ingress_global_timestamp"
+          }
+        },
+        {
+          "op" : "register_write",
+          "parameters" : [
+            {
+              "type" : "register_array",
+              "value" : "MyIngress.TS2"
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_0"]
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_1"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 114,
+            "column" : 8,
+            "source_fragment" : "TS2.write((bit<32>)originalPort, (bit<64>)standard_metadata.ingress_global_timestamp)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.do_updateT3",
+      "id" : 2,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_2"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "field",
+                    "value" : ["DPSyncTag", "originalPort"]
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffffffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 124,
+            "column" : 18,
+            "source_fragment" : "(bit<32>)originalPort"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_3"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "field",
+                    "value" : ["standard_metadata", "ingress_global_timestamp"]
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffffffffffffffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 124,
+            "column" : 41,
+            "source_fragment" : "(bit<64>)standard_metadata.ingress_global_timestamp"
+          }
+        },
+        {
+          "op" : "register_write",
+          "parameters" : [
+            {
+              "type" : "register_array",
+              "value" : "MyIngress.TS3"
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_2"]
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_3"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 124,
+            "column" : 8,
+            "source_fragment" : "TS3.write((bit<32>)originalPort, (bit<64>)standard_metadata.ingress_global_timestamp)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.do_updateT4",
+      "id" : 3,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_4"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "field",
+                    "value" : ["DPSyncTag", "originalPort"]
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffffffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 134,
+            "column" : 18,
+            "source_fragment" : "(bit<32>)originalPort"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_5"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "field",
+                    "value" : ["standard_metadata", "ingress_global_timestamp"]
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffffffffffffffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 134,
+            "column" : 41,
+            "source_fragment" : "(bit<64>)standard_metadata.ingress_global_timestamp"
+          }
+        },
+        {
+          "op" : "register_write",
+          "parameters" : [
+            {
+              "type" : "register_array",
+              "value" : "MyIngress.TS4"
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_4"]
+            },
+            {
+              "type" : "field",
+              "value" : ["scalars", "tmp_5"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 134,
+            "column" : 8,
+            "source_fragment" : "TS4.write((bit<32>)originalPort, (bit<64>)standard_metadata.ingress_global_timestamp)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.clearHeaderTS",
+      "id" : 4,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["TS", "TS1"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000000000000000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 144,
+            "column" : 8,
+            "source_fragment" : "hdr.TS.TS1 = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["TS", "TS2"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000000000000000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 145,
+            "column" : 8,
+            "source_fragment" : "hdr.TS.TS2 = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["TS", "TS3"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000000000000000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 146,
+            "column" : 8,
+            "source_fragment" : "hdr.TS.TS3 = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["TS", "TS4"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000000000000000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 147,
+            "column" : 8,
+            "source_fragment" : "hdr.TS.TS4 = 0"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.clearHeaderTS",
+      "id" : 5,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["TS", "TS1"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000000000000000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 144,
+            "column" : 8,
+            "source_fragment" : "hdr.TS.TS1 = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["TS", "TS2"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000000000000000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 145,
+            "column" : 8,
+            "source_fragment" : "hdr.TS.TS2 = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["TS", "TS3"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000000000000000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 146,
+            "column" : 8,
+            "source_fragment" : "hdr.TS.TS3 = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["TS", "TS4"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000000000000000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 147,
+            "column" : 8,
+            "source_fragment" : "hdr.TS.TS4 = 0"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.clearHeaderTS",
+      "id" : 6,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["TS", "TS1"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000000000000000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 144,
+            "column" : 8,
+            "source_fragment" : "hdr.TS.TS1 = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["TS", "TS2"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000000000000000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 145,
+            "column" : 8,
+            "source_fragment" : "hdr.TS.TS2 = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["TS", "TS3"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000000000000000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 146,
+            "column" : 8,
+            "source_fragment" : "hdr.TS.TS3 = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["TS", "TS4"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000000000000000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 147,
+            "column" : 8,
+            "source_fragment" : "hdr.TS.TS4 = 0"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.clearHeaderTS",
+      "id" : 7,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["TS", "TS1"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000000000000000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 144,
+            "column" : 8,
+            "source_fragment" : "hdr.TS.TS1 = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["TS", "TS2"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000000000000000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 145,
+            "column" : 8,
+            "source_fragment" : "hdr.TS.TS2 = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["TS", "TS3"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000000000000000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 146,
+            "column" : 8,
+            "source_fragment" : "hdr.TS.TS3 = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["TS", "TS4"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0000000000000000"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 147,
+            "column" : 8,
+            "source_fragment" : "hdr.TS.TS4 = 0"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "timeSync159",
+      "id" : 8,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["DPSyncTag", "opCode"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x01"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 11,
+            "column" : 46,
+            "source_fragment" : "1, delayReq = 2, delayResp = 3} ..."
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["TS", "TS1"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "field",
+                    "value" : ["standard_metadata", "ingress_global_timestamp"]
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffffffffffffffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 160,
+            "column" : 20,
+            "source_fragment" : "hdr.TS.TS1 = (bit<64>)standard_metadata.ingress_global_timestamp"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["standard_metadata", "mcast_grp"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0002"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 16,
+            "column" : 41,
+            "source_fragment" : "2; ..."
+          }
+        }
+      ]
+    },
+    {
+      "name" : "timeSync167",
+      "id" : 9,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "mark_to_drop",
+          "parameters" : [
+            {
+              "type" : "header",
+              "value" : "standard_metadata"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 167,
+            "column" : 20,
+            "source_fragment" : "mark_to_drop(standard_metadata)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "timeSync179",
+      "id" : 10,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["standard_metadata", "mcast_grp"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0001"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 15,
+            "column" : 30,
+            "source_fragment" : "1; ..."
+          }
+        }
+      ]
+    },
+    {
+      "name" : "timeSync186",
+      "id" : 11,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["DPSyncTag", "opCode"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x02"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 11,
+            "column" : 60,
+            "source_fragment" : "2, delayResp = 3} ..."
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["standard_metadata", "mcast_grp"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x0001"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 15,
+            "column" : 30,
+            "source_fragment" : "1; ..."
+          }
+        }
+      ]
+    },
+    {
+      "name" : "timeSync192",
+      "id" : 12,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["DPSyncTag", "opCode"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x03"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 11,
+            "column" : 75,
+            "source_fragment" : "3} ..."
+          }
+        }
+      ]
+    },
+    {
+      "name" : "timeSync194",
+      "id" : 13,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["TS", "TS4"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "field",
+                    "value" : ["standard_metadata", "ingress_global_timestamp"]
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0xffffffffffffffff"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 194,
+            "column" : 20,
+            "source_fragment" : "hdr.TS.TS4 = (bit<64>)standard_metadata.ingress_global_timestamp"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["standard_metadata", "egress_spec"]
+            },
+            {
+              "type" : "field",
+              "value" : ["standard_metadata", "ingress_port"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 195,
+            "column" : 20,
+            "source_fragment" : "standard_metadata.egress_spec = standard_metadata.ingress_port"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "timeSync201",
+      "id" : 14,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "mark_to_drop",
+          "parameters" : [
+            {
+              "type" : "header",
+              "value" : "standard_metadata"
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 201,
+            "column" : 20,
+            "source_fragment" : "mark_to_drop(standard_metadata)"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "timeSync173",
+      "id" : 15,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["DPSyncTag", "originalPort"]
+            },
+            {
+              "type" : "field",
+              "value" : ["standard_metadata", "ingress_port"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 173,
+            "column" : 16,
+            "source_fragment" : "hdr.DPSyncTag.originalPort = standard_metadata.ingress_port"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "timeSync226",
+      "id" : 16,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["ipv4", "dstAddr"]
+            },
+            {
+              "type" : "field",
+              "value" : ["ipv4", "srcAddr"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 226,
+            "column" : 20,
+            "source_fragment" : "hdr.ipv4.dstAddr = hdr.ipv4.srcAddr"
+          }
+        }
+      ]
+    }
+  ],
+  "pipelines" : [
+    {
+      "name" : "ingress",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "timeSync.p4",
+        "line" : 88,
+        "column" : 8,
+        "source_fragment" : "MyIngress"
+      },
+      "init_table" : "node_2",
+      "tables" : [
+        {
+          "name" : "tbl_timeSync159",
+          "id" : 0,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 159,
+            "column" : 40,
+            "source_fragment" : "= OPCODE_MODE.followUp; ..."
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [8],
+          "actions" : ["timeSync159"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "timeSync159" : null
+          },
+          "default_entry" : {
+            "action_id" : 8,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_do_updateT3",
+          "id" : 1,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 165,
+            "column" : 20,
+            "source_fragment" : "do_updateT3(hdr.DPSyncTag.originalPort)"
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [2],
+          "actions" : ["MyIngress.do_updateT3"],
+          "base_default_next" : "tbl_clearHeaderTS",
+          "next_tables" : {
+            "MyIngress.do_updateT3" : "tbl_clearHeaderTS"
+          },
+          "default_entry" : {
+            "action_id" : 2,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_clearHeaderTS",
+          "id" : 2,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 166,
+            "column" : 20,
+            "source_fragment" : "clearHeaderTS()"
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [4],
+          "actions" : ["MyIngress.clearHeaderTS"],
+          "base_default_next" : "tbl_timeSync167",
+          "next_tables" : {
+            "MyIngress.clearHeaderTS" : "tbl_timeSync167"
+          },
+          "default_entry" : {
+            "action_id" : 4,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_timeSync167",
+          "id" : 3,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 167,
+            "column" : 20,
+            "source_fragment" : "mark_to_drop(standard_metadata)"
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [9],
+          "actions" : ["timeSync167"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "timeSync167" : null
+          },
+          "default_entry" : {
+            "action_id" : 9,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_timeSync173",
+          "id" : 4,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 173,
+            "column" : 43,
+            "source_fragment" : "="
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [15],
+          "actions" : ["timeSync173"],
+          "base_default_next" : "node_11",
+          "next_tables" : {
+            "timeSync173" : "node_11"
+          },
+          "default_entry" : {
+            "action_id" : 15,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_do_updateT2",
+          "id" : 5,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 177,
+            "column" : 20,
+            "source_fragment" : "do_updateT2(hdr.DPSyncTag.originalPort)"
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [1],
+          "actions" : ["MyIngress.do_updateT2"],
+          "base_default_next" : "tbl_clearHeaderTS_0",
+          "next_tables" : {
+            "MyIngress.do_updateT2" : "tbl_clearHeaderTS_0"
+          },
+          "default_entry" : {
+            "action_id" : 1,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_clearHeaderTS_0",
+          "id" : 6,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 178,
+            "column" : 20,
+            "source_fragment" : "clearHeaderTS()"
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [5],
+          "actions" : ["MyIngress.clearHeaderTS"],
+          "base_default_next" : "tbl_timeSync179",
+          "next_tables" : {
+            "MyIngress.clearHeaderTS" : "tbl_timeSync179"
+          },
+          "default_entry" : {
+            "action_id" : 5,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_timeSync179",
+          "id" : 7,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 179,
+            "column" : 48,
+            "source_fragment" : "="
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [10],
+          "actions" : ["timeSync179"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "timeSync179" : null
+          },
+          "default_entry" : {
+            "action_id" : 10,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_do_updateT1",
+          "id" : 8,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 184,
+            "column" : 20,
+            "source_fragment" : "do_updateT1(hdr.DPSyncTag.originalPort)"
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [0],
+          "actions" : ["MyIngress.do_updateT1"],
+          "base_default_next" : "tbl_clearHeaderTS_1",
+          "next_tables" : {
+            "MyIngress.do_updateT1" : "tbl_clearHeaderTS_1"
+          },
+          "default_entry" : {
+            "action_id" : 0,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_clearHeaderTS_1",
+          "id" : 9,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 185,
+            "column" : 20,
+            "source_fragment" : "clearHeaderTS()"
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [6],
+          "actions" : ["MyIngress.clearHeaderTS"],
+          "base_default_next" : "tbl_timeSync186",
+          "next_tables" : {
+            "MyIngress.clearHeaderTS" : "tbl_timeSync186"
+          },
+          "default_entry" : {
+            "action_id" : 6,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_timeSync186",
+          "id" : 10,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 186,
+            "column" : 41,
+            "source_fragment" : "= OPCODE_MODE.delayReq; ..."
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [11],
+          "actions" : ["timeSync186"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "timeSync186" : null
+          },
+          "default_entry" : {
+            "action_id" : 11,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_timeSync192",
+          "id" : 11,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 192,
+            "column" : 41,
+            "source_fragment" : "="
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [12],
+          "actions" : ["timeSync192"],
+          "base_default_next" : "tbl_clearHeaderTS_2",
+          "next_tables" : {
+            "timeSync192" : "tbl_clearHeaderTS_2"
+          },
+          "default_entry" : {
+            "action_id" : 12,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_clearHeaderTS_2",
+          "id" : 12,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 193,
+            "column" : 20,
+            "source_fragment" : "clearHeaderTS()"
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [7],
+          "actions" : ["MyIngress.clearHeaderTS"],
+          "base_default_next" : "tbl_timeSync194",
+          "next_tables" : {
+            "MyIngress.clearHeaderTS" : "tbl_timeSync194"
+          },
+          "default_entry" : {
+            "action_id" : 7,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_timeSync194",
+          "id" : 13,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 194,
+            "column" : 31,
+            "source_fragment" : "= (bit<64>)standard_metadata.ingress_global_timestamp; ..."
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [13],
+          "actions" : ["timeSync194"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "timeSync194" : null
+          },
+          "default_entry" : {
+            "action_id" : 13,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_do_updateT4",
+          "id" : 14,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 200,
+            "column" : 20,
+            "source_fragment" : "do_updateT4(hdr.DPSyncTag.originalPort)"
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [3],
+          "actions" : ["MyIngress.do_updateT4"],
+          "base_default_next" : "tbl_timeSync201",
+          "next_tables" : {
+            "MyIngress.do_updateT4" : "tbl_timeSync201"
+          },
+          "default_entry" : {
+            "action_id" : 3,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        },
+        {
+          "name" : "tbl_timeSync201",
+          "id" : 15,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 201,
+            "column" : 20,
+            "source_fragment" : "mark_to_drop(standard_metadata)"
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [14],
+          "actions" : ["timeSync201"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "timeSync201" : null
+          },
+          "default_entry" : {
+            "action_id" : 14,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        }
+      ],
+      "action_profiles" : [],
+      "conditionals" : [
+        {
+          "name" : "node_2",
+          "id" : 0,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 152,
+            "column" : 11,
+            "source_fragment" : "hdr.DPSyncTag.isValid()"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "d2b",
+              "left" : null,
+              "right" : {
+                "type" : "field",
+                "value" : ["DPSyncTag", "$valid$"]
+              }
+            }
+          },
+          "false_next" : null,
+          "true_next" : "node_3"
+        },
+        {
+          "name" : "node_3",
+          "id" : 1,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 154,
+            "column" : 15,
+            "source_fragment" : "standard_metadata.ingress_port == LOOPBACK_PORT"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["standard_metadata", "ingress_port"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x0044"
+              }
+            }
+          },
+          "true_next" : "node_4",
+          "false_next" : "tbl_timeSync173"
+        },
+        {
+          "name" : "node_4",
+          "id" : 2,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 157,
+            "column" : 19,
+            "source_fragment" : "hdr.DPSyncTag.opCode == OPCODE_MODE.sync"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["DPSyncTag", "opCode"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x00"
+              }
+            }
+          },
+          "true_next" : "tbl_timeSync159",
+          "false_next" : "node_6"
+        },
+        {
+          "name" : "node_6",
+          "id" : 3,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 163,
+            "column" : 24,
+            "source_fragment" : "hdr.DPSyncTag.opCode == OPCODE_MODE.delayReq"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["DPSyncTag", "opCode"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x02"
+              }
+            }
+          },
+          "false_next" : null,
+          "true_next" : "tbl_do_updateT3"
+        },
+        {
+          "name" : "node_11",
+          "id" : 4,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 174,
+            "column" : 19,
+            "source_fragment" : "hdr.DPSyncTag.opCode == OPCODE_MODE.sync"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["DPSyncTag", "opCode"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x00"
+              }
+            }
+          },
+          "true_next" : "tbl_do_updateT2",
+          "false_next" : "node_15"
+        },
+        {
+          "name" : "node_15",
+          "id" : 5,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 181,
+            "column" : 24,
+            "source_fragment" : "hdr.DPSyncTag.opCode == OPCODE_MODE.followUp"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["DPSyncTag", "opCode"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x01"
+              }
+            }
+          },
+          "true_next" : "tbl_do_updateT1",
+          "false_next" : "node_19"
+        },
+        {
+          "name" : "node_19",
+          "id" : 6,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 189,
+            "column" : 24,
+            "source_fragment" : "hdr.DPSyncTag.opCode == OPCODE_MODE.delayReq"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["DPSyncTag", "opCode"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x02"
+              }
+            }
+          },
+          "true_next" : "tbl_timeSync192",
+          "false_next" : "node_23"
+        },
+        {
+          "name" : "node_23",
+          "id" : 7,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 197,
+            "column" : 24,
+            "source_fragment" : "hdr.DPSyncTag.opCode == OPCODE_MODE.delayResp"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["DPSyncTag", "opCode"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x03"
+              }
+            }
+          },
+          "false_next" : null,
+          "true_next" : "tbl_do_updateT4"
+        }
+      ]
+    },
+    {
+      "name" : "egress",
+      "id" : 1,
+      "source_info" : {
+        "filename" : "timeSync.p4",
+        "line" : 213,
+        "column" : 8,
+        "source_fragment" : "MyEgress"
+      },
+      "init_table" : "node_28",
+      "tables" : [
+        {
+          "name" : "tbl_timeSync226",
+          "id" : 16,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 226,
+            "column" : 37,
+            "source_fragment" : "="
+          },
+          "key" : [],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [16],
+          "actions" : ["timeSync226"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "timeSync226" : null
+          },
+          "default_entry" : {
+            "action_id" : 16,
+            "action_const" : true,
+            "action_data" : [],
+            "action_entry_const" : true
+          }
+        }
+      ],
+      "action_profiles" : [],
+      "conditionals" : [
+        {
+          "name" : "node_28",
+          "id" : 8,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 220,
+            "column" : 12,
+            "source_fragment" : "standard_metadata.instance_type == BMV2_V1MODEL_INSTANCE_TYPE_REPLICATION"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["standard_metadata", "instance_type"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x00000005"
+              }
+            }
+          },
+          "false_next" : null,
+          "true_next" : "node_29"
+        },
+        {
+          "name" : "node_29",
+          "id" : 9,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 222,
+            "column" : 15,
+            "source_fragment" : "hdr.DPSyncTag.opCode != OPCODE_MODE.delayReq"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "!=",
+              "left" : {
+                "type" : "field",
+                "value" : ["DPSyncTag", "opCode"]
+              },
+              "right" : {
+                "type" : "hexstr",
+                "value" : "0x02"
+              }
+            }
+          },
+          "false_next" : null,
+          "true_next" : "node_30"
+        },
+        {
+          "name" : "node_30",
+          "id" : 10,
+          "source_info" : {
+            "filename" : "timeSync.p4",
+            "line" : 224,
+            "column" : 19,
+            "source_fragment" : "standard_metadata.ingress_port == standard_metadata.egress_port"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "==",
+              "left" : {
+                "type" : "field",
+                "value" : ["standard_metadata", "ingress_port"]
+              },
+              "right" : {
+                "type" : "field",
+                "value" : ["standard_metadata", "egress_port"]
+              }
+            }
+          },
+          "false_next" : null,
+          "true_next" : "tbl_timeSync226"
+        }
+      ]
+    }
+  ],
+  "checksums" : [
+    {
+      "name" : "cksum",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "timeSync.p4",
+        "line" : 241,
+        "column" : 1,
+        "source_fragment" : "update_checksum( ..."
+      },
+      "target" : ["ipv4", "hdrChecksum"],
+      "type" : "generic",
+      "calculation" : "calc",
+      "verify" : false,
+      "update" : true,
+      "if_cond" : {
+        "type" : "expression",
+        "value" : {
+          "op" : "d2b",
+          "left" : null,
+          "right" : {
+            "type" : "field",
+            "value" : ["ipv4", "$valid$"]
+          }
+        }
+      }
+    }
+  ],
+  "force_arith" : [],
+  "extern_instances" : [],
+  "field_aliases" : [
+    [
+      "queueing_metadata.enq_timestamp",
+      ["standard_metadata", "enq_timestamp"]
+    ],
+    [
+      "queueing_metadata.enq_qdepth",
+      ["standard_metadata", "enq_qdepth"]
+    ],
+    [
+      "queueing_metadata.deq_timedelta",
+      ["standard_metadata", "deq_timedelta"]
+    ],
+    [
+      "queueing_metadata.deq_qdepth",
+      ["standard_metadata", "deq_qdepth"]
+    ],
+    [
+      "intrinsic_metadata.ingress_global_timestamp",
+      ["standard_metadata", "ingress_global_timestamp"]
+    ],
+    [
+      "intrinsic_metadata.egress_global_timestamp",
+      ["standard_metadata", "egress_global_timestamp"]
+    ],
+    [
+      "intrinsic_metadata.mcast_grp",
+      ["standard_metadata", "mcast_grp"]
+    ],
+    [
+      "intrinsic_metadata.egress_rid",
+      ["standard_metadata", "egress_rid"]
+    ],
+    [
+      "intrinsic_metadata.priority",
+      ["standard_metadata", "priority"]
+    ]
+  ],
+  "program" : "timeSync.p4",
+  "__meta__" : {
+    "version" : [2, 23],
+    "compiler" : "https://github.com/p4lang/p4c"
+  }
+}

@@ -1,0 +1,100 @@
+pkg_info {
+  arch: "v1model"
+}
+actions {
+  preamble {
+    id: 18872567
+    name: "MyIngress.do_updateT1"
+    alias: "do_updateT1"
+  }
+}
+actions {
+  preamble {
+    id: 31641214
+    name: "MyIngress.do_updateT2"
+    alias: "do_updateT2"
+  }
+}
+actions {
+  preamble {
+    id: 27304442
+    name: "MyIngress.do_updateT3"
+    alias: "do_updateT3"
+  }
+}
+actions {
+  preamble {
+    id: 23748478
+    name: "MyIngress.do_updateT4"
+    alias: "do_updateT4"
+  }
+}
+actions {
+  preamble {
+    id: 21862877
+    name: "MyIngress.clearHeaderTS"
+    alias: "clearHeaderTS"
+  }
+}
+registers {
+  preamble {
+    id: 372369351
+    name: "MyIngress.TS1"
+    alias: "TS1"
+  }
+  type_spec {
+    bitstring {
+      bit {
+        bitwidth: 64
+      }
+    }
+  }
+  size: 512
+}
+registers {
+  preamble {
+    id: 384041772
+    name: "MyIngress.TS2"
+    alias: "TS2"
+  }
+  type_spec {
+    bitstring {
+      bit {
+        bitwidth: 64
+      }
+    }
+  }
+  size: 512
+}
+registers {
+  preamble {
+    id: 375338019
+    name: "MyIngress.TS3"
+    alias: "TS3"
+  }
+  type_spec {
+    bitstring {
+      bit {
+        bitwidth: 64
+      }
+    }
+  }
+  size: 512
+}
+registers {
+  preamble {
+    id: 384324404
+    name: "MyIngress.TS4"
+    alias: "TS4"
+  }
+  type_spec {
+    bitstring {
+      bit {
+        bitwidth: 64
+      }
+    }
+  }
+  size: 512
+}
+type_info {
+}

@@ -25,12 +25,7 @@ def get_if():
 
 
 
-TS = TS_Payload(
-    TS1 = 0,
-    TS2 = 0,
-    TS3 = 0,
-    TS4 = 0
-)
+
 
 
 parser = argparse.ArgumentParser()
@@ -45,33 +40,8 @@ def main():
     #global iface
     syncPkt()
     followUpPkt()
-    #sniff(iface = iface, prn = lambda x: handle_pkt(x))
-
-'''
-def handle_pkt(pkt):
-    if DPSyncTag in pkt:
-        pkt.show()
-        sys.sdout.flush()
-
-        if pkt[DPSyncTag].opCode == 0b0010:
-            delayReqPkt()
 
 
-def delayReqPkt():
-    global iface, addr
-    DPSync = DPSyncTag(
-        etherType = 0x9487,
-        opCode = 0b0011,
-        reserved = 0,
-        originalPort = 0
-    )
-
-    pkt = Ether(src=get_if_hwaddr(iface), type=0x9487, dst='ff:ff:ff:ff:ff:ff')
-    pkt =pkt / IP(dst=addr) / DPSync / TS
-    pkt.show()
-    hexdump(pkt)
-    sendp(pkt, iface=iface, verbose=False)
-'''
 def syncPkt():
     global iface, addr
     DPSync = DPSyncTag(
@@ -79,6 +49,13 @@ def syncPkt():
         opCode = 0b0000,
         reserved = 0,
         originalPort = 0
+    )
+
+    TS = TS_Payload(
+        TS1 = 0,
+        TS2 = 0,
+        TS3 = 0,
+        TS4 = 0
     )
 
     pkt = Ether(src=get_if_hwaddr(iface), type=0x9487, dst='ff:ff:ff:ff:ff:ff')
@@ -90,6 +67,7 @@ def syncPkt():
 
 def followUpPkt():
     
+    #lastPktTime = time.time_ns()
     lastPktTime = int(round(time.time() * 1000 * 1000 * 1000)) #accurate rate : naro second(10^-9)
     DPSync = DPSyncTag(
             etherType = 0x9487,

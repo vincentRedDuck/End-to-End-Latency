@@ -6,14 +6,18 @@
 
 #define MAX_PORTS 512
 
+
 enum bit<16> ETHER_TYPE {IPV4 = 0x0800, timeSync = 0x9487}
 enum bit<4> OPCODE_MODE {sync = 0, followUp = 1, delayReq = 2, delayResp = 3}
 enum bit<2> REGISTER_TYPE {TS1 = 0, TS2 = 1, TS3 = 2, TS4 = 3}
 
 const bit<9> PORT_TO_HOST2 = 2; //test, the port is connected to h2
 const bit<16> MULTICAST_GID = 1;
+const bit<16> MULTICAST_NOLOOPBACK_GID = 2;
 const bit<9> LOOPBACK_PORT = 68;
+const bit<32> BMV2_V1MODEL_INSTANCE_TYPE_REPLICATION = 5;
 
+#define IS_MULTICAST(std_meta) (std_meta.instance_type == BMV2_V1MODEL_INSTANCE_TYPE_REPLICATION)
 /*************************************************************************
 *********************** H E A D E R S  ***********************************
 *************************************************************************/
@@ -150,40 +154,51 @@ control MyIngress(inout headers hdr,
             if(standard_metadata.ingress_port == LOOPBACK_PORT)
             {
                 //The sender is p4 switch
-                if(hdr.DPSyncTag.opCode == OPCODE_MODE.delayReq)
+                if(hdr.DPSyncTag.opCode == OPCODE_MODE.sync)
+                {
+                    hdr.DPSyncTag.opCode= OPCODE_MODE.followUp;                    
+                    hdr.TS.TS1 = (bit<64>)standard_metadata.ingress_global_timestamp;
+                    standard_metadata.mcast_grp = MULTICAST_NOLOOPBACK_GID;
+                }
+                else if(hdr.DPSyncTag.opCode == OPCODE_MODE.delayReq)
                 {
                     do_updateT3(hdr.DPSyncTag.originalPort);
                     clearHeaderTS();
-                    do_appendHeaderT3(hdr.DPSyncTag.originalPort);
-                    standard_metadata.egress_spec = PORT_TO_HOST2;
+                    mark_to_drop(standard_metadata);                                        
                 }
             } 
             else
             {
-                //The sender is client
+                //switch receive a pakcet from other host
                 hdr.DPSyncTag.originalPort = standard_metadata.ingress_port;
                 if(hdr.DPSyncTag.opCode == OPCODE_MODE.sync)
-                {
+                {                   
+                    //switch is a clent.
                     do_updateT2(hdr.DPSyncTag.originalPort);
-                    clearHeaderTS();
-                    do_appendHeaderT2(hdr.DPSyncTag.originalPort);
-                    hdr.DPSyncTag.opCode = OPCODE_MODE.delayReq;                    
+                    clearHeaderTS();                                                  
                     standard_metadata.mcast_grp = MULTICAST_GID;
                 }
                 else if(hdr.DPSyncTag.opCode == OPCODE_MODE.followUp)
                 {
+                    //switch is a clent.
                     do_updateT1(hdr.DPSyncTag.originalPort);
                     clearHeaderTS();
-                    do_appendHeaderT1(hdr.DPSyncTag.originalPort);
+                    hdr.DPSyncTag.opCode = OPCODE_MODE.delayReq;
                     standard_metadata.mcast_grp = MULTICAST_GID;
+                }
+                else if(hdr.DPSyncTag.opCode == OPCODE_MODE.delayReq)
+                {
+                    //switch is a server.
+                    hdr.DPSyncTag.opCode = OPCODE_MODE.delayResp;
+                    clearHeaderTS();
+                    hdr.TS.TS4 = (bit<64>)standard_metadata.ingress_global_timestamp;
+                    standard_metadata.egress_spec = standard_metadata.ingress_port;
                 }
                 else if(hdr.DPSyncTag.opCode == OPCODE_MODE.delayResp)
                 {
-                    
+                    //switch is a clent.
                     do_updateT4(hdr.DPSyncTag.originalPort);
-                    clearHeaderTS();
-                    do_appendHeaderT4(hdr.DPSyncTag.originalPort);                    
-                    standard_metadata.mcast_grp = MULTICAST_GID;
+                    mark_to_drop(standard_metadata); 
                 }
             }
 
@@ -200,7 +215,19 @@ control MyEgress(inout headers hdr,
                  inout standard_metadata_t standard_metadata) {
    
 
+
     apply {
+        if(IS_MULTICAST(standard_metadata))
+        {
+            if(hdr.DPSyncTag.opCode != OPCODE_MODE.delayReq)  //becase delayReq is come from the follow-up packet which sender sended.
+            {
+                if(standard_metadata.ingress_port == standard_metadata.egress_port)
+                {
+                    hdr.ipv4.dstAddr = hdr.ipv4.srcAddr; //it mean that sender don't need this packet.
+                }
+            }
+        }
+
 
     }
 }

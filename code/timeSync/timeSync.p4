@@ -219,7 +219,7 @@ control MyEgress(inout headers hdr,
     apply {
         if(IS_MULTICAST(standard_metadata))
         {
-            if(hdr.DPSyncTag.opCode != OPCODE_MODE.delayReq)  //becase delayReq is come from the follow-up packet which sender sended.
+            if(hdr.DPSyncTag.opCode != OPCODE_MODE.delayReq)  //becase delayReq comes from the follow-up packet which sender sended.
             {
                 if(standard_metadata.ingress_port == standard_metadata.egress_port)
                 {
